@@ -1,0 +1,65 @@
+/*
+Description:
+
+ >  Read n and then n integers into an array.
+
+ >  Reverse the array in-place (so first becomes last, last becomes first).
+
+ >  Then print the reversed array.
+
+Hints / Notes:
+
+ >  Use two indices: i = 0, j = n-1, swap arr[i] and arr[j] while i < j.
+
+ >   After reversing, use a loop to print all elements.
+
+ >   Reversal is a classic array manipulation exercise.
+
+
+
+/*
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, i;
+    printf("Enter number of elements: ");
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Invalid number of elements.\n");
+        return 1;
+    }
+
+    int *arr = (int*) malloc(n * sizeof(int));
+    if (arr == NULL) {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    printf("Enter %d integers:\n", n);
+    for (i = 0; i < n; i++) {
+        printf("Element %d: ", i + 1);
+        scanf("%d", &arr[i]);
+    }
+
+    // Reverse the array in-place using two indices
+    int left = 0, right = n - 1;
+    while (left < right) {
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
+        left++;
+        right--;
+    }
+
+    printf("\nReversed array:\n");
+    for (i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    free(arr);
+    return 0;
+}
