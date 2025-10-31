@@ -1,0 +1,63 @@
+*/
+
+n:
+
+Read an integer n from the user (number of elements).
+
+Read n integers into an array.
+
+Compute the sum of all elements.
+
+Compute the average (as a float or double).
+
+Print the sum and the average.
+
+Hints / Notes:
+
+Declare an array like: int arr[1000]; (or dynamically if you like).
+
+Use a loop to read and another loop (or same) to compute sum.
+
+Average = sum / (double)n.
+
+You’ll be practising array declaration, input, loops, indexing.
+
+According to tutorials, arrays in C start at index 0 and go up to n-1.
+/*
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, i;
+    printf("Enter number of elements: ");
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Invalid number of elements.\n");
+        return 1;
+    }
+
+    int *arr = (int*) malloc(n * sizeof(int));
+    if (arr == NULL) {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    printf("Enter %d integers:\n", n);
+    for (i = 0; i < n; i++) {
+        printf("Element %d: ", i + 1);
+        scanf("%d", &arr[i]);
+    }
+
+    long long sum = 0;
+    for (i = 0; i < n; i++) {
+        sum += arr[i];
+    }
+
+    double average = (double) sum / n;
+
+    printf("\nSum of elements = %lld\n", sum);
+    printf("Average of elements = %.2f\n", average);
+
+    free(arr);
+    return 0;
+}
