@@ -1,0 +1,58 @@
+/*
+Q4: Merge Two Sorted Linked Lists
+Merge two sorted singly linked lists into one sorted list WITHOUT creating new nodes.
+Return the head of the merged list.
+
+Example:
+L1: 1->3->5
+L2: 2->4->6
+Merged: 1->2->3->4->5->6
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node { int data; struct Node *next; } Node;
+
+Node* new_node(int v){ Node* n = malloc(sizeof(Node)); if(!n){perror("malloc"); exit(1);} n->data=v; n->next=NULL; return n; }
+void append(Node **h, int v){ Node* n=new_node(v); if(!*h){*h=n; return;} Node* t=*h; while(t->next) t=t->next; t->next=n; }
+void print_list(Node *h){ while(h){ printf("%d",h->data); if(h->next) printf(" -> "); h=h->next;} printf("\n"); }
+
+/* Merge without allocating new nodes (iterative) */
+Node* merge_sorted(Node *a, Node *b) {
+    if (!a) return b;
+    if (!b) return a;
+    Node *head = NULL, *tail = NULL;
+
+    /* Initialize head */
+    if (a->data <= b->data) { head = tail = a; a = a->next; }
+    else { head = tail = b; b = b->next; }
+
+    while (a && b) {
+        if (a->data <= b->data) { tail->next = a; tail = a; a = a->next; }
+        else { tail->next = b; tail = b; b = b->next; }
+    }
+    tail->next = a ? a : b;
+    return head;
+}
+
+/* Free list */
+void free_list(Node *h){ while(h){ Node *t=h; h=h->next; free(t);} }
+
+int main(void) {
+    Node *l1 = NULL, *l2 = NULL;
+    int a_vals[] = {1,3,5,7};
+    int b_vals[] = {2,4,6,8,10};
+
+    for (int i=0;i<4;i++) append(&l1,a_vals[i]);
+    for (int i=0;i<5;i++) append(&l2,b_vals[i]);
+
+    printf("L1: "); print_list(l1);
+    printf("L2: "); print_list(l2);
+
+    Node *merged = merge_sorted(l1, l2);
+    printf("Merged: "); print_list(merged);
+
+    free_list(merged);
+    return 0;
+}
