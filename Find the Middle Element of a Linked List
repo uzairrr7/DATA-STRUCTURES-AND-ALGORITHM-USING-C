@@ -1,0 +1,48 @@
+/*
+Q3: Find the Middle Element of a Linked List
+Find the middle node in one traversal. If even number of nodes, return the second middle node.
+
+Example:
+1->2->3 => middle = 2
+1->2->3->4 => middle = 3 (the "second middle")
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node { int data; struct Node *next; } Node;
+
+Node* new_node(int v) { Node *n = malloc(sizeof(Node)); if(!n){perror("malloc"); exit(1);} n->data=v; n->next=NULL; return n; }
+void append(Node **h, int v){ Node *n=new_node(v); if(!*h){*h=n;return;} Node *t=*h; while(t->next) t=t->next; t->next=n; }
+void print_list(Node *h){ while(h){ printf("%d",h->data); if(h->next) printf(" -> "); h=h->next;} printf("\n"); }
+void free_list(Node *h){ while(h){ Node *t=h; h=h->next; free(t);} }
+
+/* Fast & slow pointers. For even length, this returns the second middle. */
+Node* find_middle(Node *head) {
+    if (!head) return NULL;
+    Node *slow = head, *fast = head;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    return slow;
+}
+
+int main(void) {
+    /* Example 1: odd count */
+    Node *h1 = NULL;
+    for (int i = 1; i <= 5; ++i) append(&h1, i);
+    printf("List1: "); print_list(h1);
+    Node *m1 = find_middle(h1);
+    printf("Middle (List1): %d\n\n", m1 ? m1->data : -1);
+
+    /* Example 2: even count */
+    Node *h2 = NULL;
+    for (int i = 10; i <= 13; ++i) append(&h2, i); /* 10->11->12->13 */
+    printf("List2: "); print_list(h2);
+    Node *m2 = find_middle(h2);
+    printf("Middle (List2 - second middle): %d\n", m2 ? m2->data : -1);
+
+    free_list(h1); free_list(h2);
+    return 0;
+}
