@@ -1,0 +1,46 @@
+/*
+Q5: Remove Duplicates from a Sorted Linked List
+Remove duplicate nodes from a sorted linked list in-place.
+
+Example:
+Input: 1 -> 1 -> 2 -> 3 -> 3
+Output: 1 -> 2 -> 3
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node { int data; struct Node *next; } Node;
+
+Node* new_node(int v){ Node* n=malloc(sizeof(Node)); if(!n){perror("malloc"); exit(1);} n->data=v; n->next=NULL; return n; }
+void append(Node **h, int v){ Node* n=new_node(v); if(!*h){*h=n; return;} Node* t=*h; while(t->next) t=t->next; t->next=n; }
+void print_list(Node *h){ while(h){ printf("%d",h->data); if(h->next) printf(" -> "); h=h->next;} printf("\n"); }
+
+/* Remove duplicates from sorted list */
+void remove_duplicates(Node *head) {
+    Node *cur = head;
+    while (cur && cur->next) {
+        if (cur->data == cur->next->data) {
+            Node *dup = cur->next;
+            cur->next = dup->next;
+            free(dup);
+        } else {
+            cur = cur->next;
+        }
+    }
+}
+
+void free_list(Node *h){ while(h){ Node *t=h; h=h->next; free(t);} }
+
+int main(void) {
+    Node *h = NULL;
+    int vals[] = {1,1,2,2,2,3,4,4,5};
+    for (size_t i=0;i<sizeof(vals)/sizeof(vals[0]);++i) append(&h, vals[i]);
+
+    printf("Before removing duplicates:\n"); print_list(h);
+    remove_duplicates(h);
+    printf("After removing duplicates:\n"); print_list(h);
+
+    free_list(h);
+    return 0;
+}
