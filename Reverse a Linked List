@@ -1,0 +1,91 @@
+/*
+Q1: Reverse a Linked List (iterative & recursive)
+Write a C program to reverse a singly linked list iteratively and recursively.
+Print the linked list before and after reversal.
+
+Example:
+Input:  1 -> 2 -> 3 -> 4 -> 5
+Output (iterative): 5 -> 4 -> 3 -> 2 -> 1
+Output (recursive): 5 -> 4 -> 3 -> 2 -> 1
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+/* Helper: create node */
+Node* new_node(int val) {
+    Node *n = malloc(sizeof(Node));
+    if (!n) { perror("malloc"); exit(EXIT_FAILURE); }
+    n->data = val; n->next = NULL; return n;
+}
+
+/* Append to tail */
+void append(Node **head, int val) {
+    Node *n = new_node(val);
+    if (!*head) { *head = n; return; }
+    Node *t = *head;
+    while (t->next) t = t->next;
+    t->next = n;
+}
+
+/* Print list */
+void print_list(Node *head) {
+    for (Node *p = head; p; p = p->next) {
+        printf("%d", p->data);
+        if (p->next) printf(" -> ");
+    }
+    printf("\n");
+}
+
+/* Free list */
+void free_list(Node *head) {
+    while (head) {
+        Node *t = head;
+        head = head->next;
+        free(t);
+    }
+}
+
+/* Iterative reversal */
+Node* reverse_iterative(Node *head) {
+    Node *prev = NULL, *curr = head;
+    while (curr) {
+        Node *nx = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = nx;
+    }
+    return prev;
+}
+
+/* Recursive reversal: returns new head */
+Node* reverse_recursive(Node *head) {
+    if (!head || !head->next) return head;
+    Node *rest = reverse_recursive(head->next);
+    head->next->next = head;
+    head->next = NULL;
+    return rest;
+}
+
+int main(void) {
+    Node *head = NULL;
+    for (int i = 1; i <= 5; ++i) append(&head, i);
+
+    printf("Original list:\n"); print_list(head);
+
+    /* Iterative */
+    head = reverse_iterative(head);
+    printf("Reversed (iterative):\n"); print_list(head);
+
+    /* Reverse again using recursive to restore original order */
+    head = reverse_recursive(head);
+    printf("Reversed back (recursive):\n"); print_list(head);
+
+    free_list(head);
+    return 0;
+}
