@@ -1,0 +1,53 @@
+/* reverse_first_k.c
+   Reverse first k elements of a queue represented by array.
+   Compile: gcc reverse_first_k.c -o reverse_first_k
+*/
+#include <stdio.h>
+#include <stdlib.h>
+
+void reverseFirstK(int queue[], int n, int k) {
+    if (k <= 0 || k > n) {
+        printf("Invalid k. Must be 1..n\n");
+        return;
+    }
+    // Use a temporary stack for first k elements
+    int *stack = (int*)malloc(sizeof(int) * k);
+    int top = -1;
+
+    // push first k elements onto stack
+    for (int i = 0; i < k; ++i) stack[++top] = queue[i];
+
+    // pop from stack to the front of queue
+    int idx = 0;
+    while (top >= 0) queue[idx++] = stack[top--];
+
+    // move the remaining elements to maintain original order
+    for (int i = k; i < n; ++i) queue[idx++] = queue[i];
+
+    free(stack);
+}
+
+void printQueue(int queue[], int n) {
+    printf("[");
+    for (int i = 0; i < n; ++i) {
+        printf("%d", queue[i]);
+        if (i < n-1) printf(", ");
+    }
+    printf("]\n");
+}
+
+int main() {
+    int q[] = {10, 20, 30, 40, 50};
+    int n = sizeof(q)/sizeof(q[0]);
+    int k = 3;
+
+    printf("Original queue: ");
+    printQueue(q, n);
+
+    reverseFirstK(q, n, k);
+
+    printf("After reversing first %d elements: ", k);
+    printQueue(q, n);
+
+    return 0;
+}
