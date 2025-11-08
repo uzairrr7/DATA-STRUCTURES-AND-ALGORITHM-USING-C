@@ -1,0 +1,84 @@
+/* queue_linkedlist.c
+   Queue implemented with linked list (dynamic memory)
+   Compile: gcc queue_linkedlist.c -o queue_linkedlist
+*/
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+typedef struct {
+    Node *front;
+    Node *rear;
+} Queue;
+
+void initQueue(Queue *q) {
+    q->front = q->rear = NULL;
+}
+
+int isEmpty(Queue *q) {
+    return q->front == NULL;
+}
+
+void enqueue(Queue *q, int val) {
+    Node *n = (Node*)malloc(sizeof(Node));
+    if (!n) { perror("malloc"); exit(EXIT_FAILURE); }
+    n->data = val;
+    n->next = NULL;
+    if (isEmpty(q)) {
+        q->front = q->rear = n;
+    } else {
+        q->rear->next = n;
+        q->rear = n;
+    }
+}
+
+int dequeue(Queue *q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty. Cannot dequeue.\n");
+        return -1;
+    }
+    Node *t = q->front;
+    int val = t->data;
+    q->front = q->front->next;
+    if (q->front == NULL) q->rear = NULL;
+    free(t);
+    return val;
+}
+
+void display(Queue *q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty\n");
+        return;
+    }
+    Node *cur = q->front;
+    printf("Queue: ");
+    while (cur) {
+        printf("%d ", cur->data);
+        cur = cur->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    Queue q;
+    initQueue(&q);
+
+    enqueue(&q, 5);
+    enqueue(&q, 15);
+    enqueue(&q, 25);
+    display(&q);
+
+    printf("Dequeue -> %d\n", dequeue(&q));
+    display(&q);
+
+    enqueue(&q, 35);
+    display(&q);
+
+    // free remaining nodes
+    while (!isEmpty(&q)) dequeue(&q);
+    return 0;
+}
