@@ -1,0 +1,69 @@
+/* queue_two_stacks.c
+   Implement queue using two stacks (arrays)
+   Compile: gcc queue_two_stacks.c -o queue_two_stacks
+*/
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAXS 100
+
+typedef struct {
+    int data[MAXS];
+    int top;
+} Stack;
+
+void initStack(Stack *s) { s->top = -1; }
+int isEmptyS(Stack *s) { return s->top == -1; }
+int isFullS(Stack *s) { return s->top == MAXS - 1; }
+void push(Stack *s, int v) { if (!isFullS(s)) s->data[++s->top] = v; else { printf("Stack overflow\n"); } }
+int pop(Stack *s) { if (!isEmptyS(s)) return s->data[s->top--]; printf("Stack underflow\n"); return -1; }
+
+typedef struct {
+    Stack s1; // enqueue stack
+    Stack s2; // dequeue stack
+} MyQueue;
+
+void initQueue(MyQueue *q) { initStack(&q->s1); initStack(&q->s2); }
+
+void enqueue(MyQueue *q, int val) {
+    push(&q->s1, val);
+}
+
+int dequeue(MyQueue *q) {
+    if (isEmptyS(&q->s2)) {
+        // move all from s1 to s2
+        while (!isEmptyS(&q->s1)) {
+            push(&q->s2, pop(&q->s1));
+        }
+    }
+    if (isEmptyS(&q->s2)) {
+        printf("Queue is empty. Cannot dequeue.\n");
+        return -1;
+    }
+    return pop(&q->s2);
+}
+
+int peek(MyQueue *q) {
+    if (isEmptyS(&q->s2)) {
+        while (!isEmptyS(&q->s1)) push(&q->s2, pop(&q->s1));
+    }
+    if (isEmptyS(&q->s2)) { printf("Queue empty\n"); return -1; }
+    return q->s2.data[q->s2.top];
+}
+
+int main() {
+    MyQueue q;
+    initQueue(&q);
+
+    enqueue(&q, 10);
+    enqueue(&q, 20);
+    enqueue(&q, 30);
+
+    printf("Dequeue -> %d\n", dequeue(&q));
+    printf("Front now -> %d\n", peek(&q));
+    printf("Dequeue -> %d\n", dequeue(&q));
+    printf("Dequeue -> %d\n", dequeue(&q));
+    printf("Dequeue -> %d (should show empty)\n", dequeue(&q));
+
+    return 0;
+}
