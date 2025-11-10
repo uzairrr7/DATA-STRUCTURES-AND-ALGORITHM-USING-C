@@ -1,0 +1,15 @@
+#include <string.h>
+
+void removeDuplicates(char* s) {
+    int n = strlen(s);
+    int write = 0;
+    int seen[256] = {0};
+    for (int read = 0; read < n; ++read) {
+        unsigned char c = s[read];
+        if (!seen[c]) {
+            seen[c] = 1;
+            s[write++] = s[read];
+        }
+    }
+    s[write] = '\0';
+}
