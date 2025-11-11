@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+} TreeNode;
+
+TreeNode* newNode(int v) {
+    TreeNode *n = malloc(sizeof(TreeNode));
+    n->val = v;
+    n->left = n->right = NULL;
+    return n;
+}
+
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root == NULL || root == p || root == q) return root;
+    TreeNode* left = lowestCommonAncestor(root->left, p, q);
+    TreeNode* right = lowestCommonAncestor(root->right, p, q);
+    if (left != NULL && right != NULL) return root;
+    return (left != NULL) ? left : right;
+}
+
+// Example usage:
+int main(){
+    TreeNode *root = newNode(3);
+    root->left = newNode(5);
+    root->right = newNode(1);
+    root->left->left = newNode(6);
+    root->left->right = newNode(2);
+    root->right->left = newNode(0);
+    root->right->right = newNode(8);
+    root->left->right->left = newNode(7);
+    root->left->right->right = newNode(4);
+
+    TreeNode *p = root->left;       // 5
+    TreeNode *q = root->left->right->right; // 4
+
+    TreeNode *ans = lowestCommonAncestor(root, p, q);
+    if (ans) printf("LCA: %d\n", ans->val); // should print 5
+
+    // Freeing nodes omitted for brevity
+    return 0;
+}
