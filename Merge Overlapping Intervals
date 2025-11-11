@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Interval {
+    int start;
+    int end;
+} Interval;
+
+int cmpInterval(const void *a, const void *b) {
+    Interval *ia = (Interval*)a;
+    Interval *ib = (Interval*)b;
+    return ia->start - ib->start;
+}
+
+Interval* mergeIntervals(Interval* intervals, int intervalsSize, int* returnSize) {
+    if (intervalsSize == 0) {
+        *returnSize = 0;
+        return NULL;
+    }
+    qsort(intervals, intervalsSize, sizeof(Interval), cmpInterval);
+    Interval *res = malloc(sizeof(Interval) * intervalsSize);
+    int idx = 0;
+    res[idx] = intervals[0];
+    for(int i=1;i<intervalsSize;i++){
+        if (intervals[i].start <= res[idx].end) {
+            if (intervals[i].end > res[idx].end)
+                res[idx].end = intervals[i].end;
+        } else {
+            idx++;
+            res[idx] = intervals[i];
+        }
+    }
+    *returnSize = idx+1;
+    return res;
+}
+
+// Example usage:
+int main(){
+    Interval arr[] = {{1,3},{2,6},{8,10},{15,18}};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int returnSize = 0;
+    Interval *merged = mergeIntervals(arr, n, &returnSize);
+    for(int i=0;i<returnSize;i++){
+        printf("[%d,%d] ", merged[i].start, merged[i].end);
+    }
+    printf("\n");
+    free(merged);
+    return 0;
+}
