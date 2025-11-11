@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct MinHeap {
+    int *harr;
+    int capacity;
+    int heap_size;
+} MinHeap;
+
+MinHeap* createMinHeap(int cap) {
+    MinHeap *h = malloc(sizeof(MinHeap));
+    h->capacity = cap;
+    h->heap_size = 0;
+    h->harr = malloc(sizeof(int)*cap);
+    return h;
+}
+
+void swap(int *x, int *y) {
+    int t = *x; *x = *y; *y = t;
+}
+
+void minHeapify(MinHeap *h, int i) {
+    int l = 2*i + 1;
+    int r = 2*i + 2;
+    int smallest = i;
+    if (l < h->heap_size && h->harr[l] < h->harr[smallest])
+        smallest = l;
+    if (r < h->heap_size && h->harr[r] < h->harr[smallest])
+        smallest = r;
+    if (smallest != i) {
+        swap(&h->harr[i], &h->harr[smallest]);
+        minHeapify(h, smallest);
+    }
+}
+
+int root(MinHeap *h) {
+    if (h->heap_size > 0) return h->harr[0];
+    return INT_MIN;
+}
+
+void replaceMin(MinHeap *h, int x) {
+    if (h->heap_size == 0) return;
+    h->harr[0] = x;
+    minHeapify(h, 0);
+}
+
+void insertMinHeap(MinHeap *h, int x) {
+    if (h->heap_size == h->capacity) {
+        if (x > h->harr[0])
+            replaceMin(h, x);
+    } else {
+        h->heap_size++;
+        int i = h->heap_size - 1;
+        h->harr[i] = x;
+        while (i != 0 && h->harr[(i-1)/2] > h->harr[i]) {
+            swap(&h->harr[i], &h->harr[(i-1)/2]);
+            i = (i-1)/2;
+        }
+    }
+}
+
+typedef struct KthLargest {
+    int k;
+    MinHeap *mh;
+} KthLargest;
+
+KthLargest* kthLargestCreate(int k, int* nums, int numsSize) {
+    KthLargest *obj = malloc(sizeof(KthLargest));
+    obj->k = k;
+    obj->mh = createMinHeap(k);
+    for(int i=0;i<numsSize;i++){
+        insertMinHeap(obj->mh, nums[i]);
+    }
+    return obj;
+}
+
+int kthLargestAdd(KthLargest* obj, int val) {
+    insertMinHeap(obj->mh, val);
+    return root(obj->mh);
+}
+
+void kthLargestFree(KthLargest* obj) {
+    free(obj->mh->harr);
+    free(obj->mh);
+    free(obj);
+}
+
+// Example usage:
+int main() {
+    int nums[] = {4,5,8,2};
+    int k = 3;
+    KthLargest* obj = kthLargestCreate(k, nums, 4);
+    printf("%d\n", kthLargestAdd(obj,3));   // returns 4
+    printf("%d\n", kthLargestAdd(obj,5));   // returns 5
+    printf("%d\n", kthLargestAdd(obj,10));  // returns 5
+    printf("%d\n", kthLargestAdd(obj,9));   // returns 8
+    printf("%d\n", kthLargestAdd(obj,4));   // returns 8
+    kthLargestFree(obj);
+    return 0;
+}
