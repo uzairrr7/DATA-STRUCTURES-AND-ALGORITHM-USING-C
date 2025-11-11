@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Doubly linked list node
+typedef struct DNode {
+    int key;
+    int value;
+    struct DNode *prev;
+    struct DNode *next;
+} DNode;
+
+// Hash map entry
+typedef struct Entry {
+    int key;
+    DNode *node;
+    struct Entry *next;
+} Entry;
+
+typedef struct {
+    int capacity;
+    int size;
+    DNode *head;
+    DNode *tail;
+    Entry **map;
+    int mapSize;
+} LRUCache;
+
+DNode* newDNode(int key, int value) {
+    DNode *n = malloc(sizeof(DNode));
+    n->key = key;
+    n->value = value;
+    n->prev = n->next = NULL;
+    return n;
+}
+
+unsigned int hashFunc(int key, int mapSize) {
+    return (unsigned int)key % mapSize;
+}
+
+Entry* mapGet(LRUCache *cache, int key) {
+    unsigned int h = hashFunc(key, cache->mapSize);
+    Entry *e = cache->map[h];
+    while(e) {
+        if (e->key == key) return e;
+        e = e->next;
+    }
+    return NULL;
+}
+
+void mapPut(LRUCache *cache, int key, DNode *node) {
+    unsigned int h = hashFunc(key, cache->mapSize);
+    Entry *e = malloc(sizeof(Entry));
+    e->key = key;
+    e->node = node;
+    e->next = cache->map[h];
+    cache->map[h] = e;
+}
+
+void removeNode(LRUCache *cache, DNode *node) {
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+}
+
+void addToFront(LRUCache *cache, DNode *node) {
+    node->next = cache->head->next;
+    node->prev = cache->head;
+    cache->head->next->prev = node;
+    cache->head->next = node;
+}
+
+LRUCache* lRUCacheCreate(int capacity) {
+    LRUCache *cache = malloc(sizeof(LRUCache));
+    cache->capacity = capacity;
+    cache->size = 0;
+    cache->mapSize = capacity * 2;
+    cache->map = calloc(cache->mapSize, sizeof(Entry*));
+    cache->head = newDNode(0,0);
+    cache->tail = newDNode(0,0);
+    cache->head->next = cache->tail;
+    cache->tail->prev = cache->head;
+    return cache;
+}
+
+int lRUCacheGet(LRUCache* cache, int key) {
+    Entry *e = mapGet(cache, key);
+    if (!e) return -1;
+    DNode *node = e->node;
+    removeNode(cache, node);
+    addToFront(cache, node);
+    return node->value;
+}
+
+void lRUCachePut(LRUCache* cache, int key, int value) {
+    Entry *e = mapGet(cache, key);
+    if (e) {
+        DNode *node = e->node;
+        node->value = value;
+        removeNode(cache, node);
+        addToFront(cache, node);
+    } else {
+        if (cache->size == cache->capacity) {
+            DNode *lru = cache->tail->prev;
+            removeNode(cache, lru);
+            // remove from map
+            unsigned int h = hashFunc(lru->key, cache->mapSize);
+            Entry **pp = &cache->map[h];
+            while(*pp && (*pp)->key != lru->key) {
+                pp = &(*pp)->next;
+            }
+            if (*pp) {
+                Entry *tofree = *pp;
+                *pp = (*pp)->next;
+                free(tofree);
+            }
+            free(lru);
+            cache->size--;
+        }
+        DNode *newNode = newDNode(key, value);
+        addToFront(cache, newNode);
+        mapPut(cache, key, newNode);
+        cache->size++;
+    }
+}
+
+void lRUCacheFree(LRUCache* cache) {
+    // free all nodes and map entries omitted for brevity
+    free(cache->map);
+    free(cache->head);
+    free(cache->tail);
+    free(cache);
+}
+
+// Example usage:
+int main(){
+    LRUCache* cache = lRUCacheCreate(2);
+    lRUCachePut(cache, 1, 1);
+    lRUCachePut(cache, 2, 2);
+    printf("%d\n", lRUCacheGet(cache, 1));   // returns 1
+    lRUCachePut(cache, 3, 3);                // evicts key 2
+    printf("%d\n", lRUCacheGet(cache, 2));   // returns -1 (not found)
+    lLRUCacheFree(cache);
+    return 0;
+}
