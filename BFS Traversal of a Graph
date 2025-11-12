@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+void bfs(int adj[][MAX], int n, int start) {
+    int visited[MAX] = {0};
+    int queue[MAX], front = 0, rear = 0;
+
+    visited[start] = 1;
+    queue[rear++] = start;
+
+    while (front < rear) {
+        int node = queue[front++];
+        printf("%d ", node);
+
+        for (int i = 0; i < n; i++) {
+            if (adj[node][i] && !visited[i]) {
+                queue[rear++] = i;
+                visited[i] = 1;
+            }
+        }
+    }
+}
+
+int main() {
+    int n = 5;
+    int adj[MAX][MAX] = {
+        {0,1,1,0,0},
+        {1,0,1,1,0},
+        {1,1,0,0,1},
+        {0,1,0,0,0},
+        {0,0,1,0,0}
+    };
+    printf("BFS Traversal: ");
+    bfs(adj, n, 0);
+    return 0;
+}
