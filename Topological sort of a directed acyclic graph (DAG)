@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAXV 50
+
+int V;
+int adj[MAXV][MAXV];
+int in_deg[MAXV];
+
+void init_graph(int v) {
+    V = v;
+    for(int i=0;i<V;i++) {
+        in_deg[i] = 0;
+        for(int j=0;j<V;j++)
+            adj[i][j]=0;
+    }
+}
+
+void add_edge(int u, int v) {
+    // directed edge u -> v
+    adj[u][v] = 1;
+    in_deg[v]++;
+}
+
+void topo_sort() {
+    int queue[MAXV];
+    int front=0, rear=0;
+    for(int i=0;i<V;i++) {
+        if(in_deg[i]==0) queue[rear++] = i;
+    }
+    int count = 0;
+    while(front < rear) {
+        int u = queue[front++];
+        printf("%d ", u);
+        count++;
+        for(int v=0; v<V; v++) {
+            if(adj[u][v]) {
+                if(--in_deg[v] == 0)
+                    queue[rear++] = v;
+            }
+        }
+    }
+    if(count != V)
+        printf("\nGraph has a cycle — topological sort not possible\n");
+    else
+        printf("\n");
+}
+
+int main() {
+    init_graph(6);
+    add_edge(5,2);
+    add_edge(5,0);
+    add_edge(4,0);
+    add_edge(4,1);
+    add_edge(2,3);
+    add_edge(3,1);
+    printf("Topological sort: ");
+    topo_sort();
+    return 0;
+}
