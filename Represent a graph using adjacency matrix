@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAXV 50
+
+int adj[MAXV][MAXV];
+int V;  // number of vertices
+
+void init_graph(int v) {
+    V = v;
+    for(int i=0;i<V;i++)
+      for(int j=0;j<V;j++)
+        adj[i][j] = 0;
+}
+
+void add_edge(int u, int v) {
+    if(u>=0 && u<V && v>=0 && v<V) {
+        adj[u][v] = 1;
+        adj[v][u] = 1;  // undirected
+    }
+}
+
+void display() {
+    for(int i=0;i<V;i++) {
+        for(int j=0;j<V;j++)
+           printf("%d ", adj[i][j]);
+        printf("\n");
+    }
+}
+
+int main() {
+    init_graph(5);
+    add_edge(0,1);
+    add_edge(0,4);
+    add_edge(1,2);
+    add_edge(1,3);
+    add_edge(1,4);
+    display();
+    return 0;
+}
