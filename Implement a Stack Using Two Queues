@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX 100
+
+// Queue structure
+typedef struct {
+    int arr[MAX];
+    int front, rear;
+} Queue;
+
+void init(Queue* q) {
+    q->front = q->rear = -1;
+}
+
+bool isEmpty(Queue* q) {
+    return q->front == -1;
+}
+
+void enqueue(Queue* q, int x) {
+    if (q->rear == MAX - 1) return;
+    if (isEmpty(q)) q->front = 0;
+    q->arr[++q->rear] = x;
+}
+
+int dequeue(Queue* q) {
+    if (isEmpty(q)) return -1;
+    int x = q->arr[q->front];
+    if (q->front == q->rear)
+        q->front = q->rear = -1;
+    else
+        q->front++;
+    return x;
+}
+
+// Stack using two queues
+typedef struct {
+    Queue q1, q2;
+} Stack;
+
+void initStack(Stack* s) {
+    init(&s->q1);
+    init(&s->q2);
+}
+
+void push(Stack* s, int x) {
+    enqueue(&s->q1, x);
+}
+
+int pop(Stack* s) {
+    if (isEmpty(&s->q1)) return -1;
+
+    while (s->q1.front != s->q1.rear) {
+        enqueue(&s->q2, dequeue(&s->q1));
+    }
+
+    int top = dequeue(&s->q1);
+
+    // swap queues
+    Queue temp = s->q1;
+    s->q1 = s->q2;
+    s->q2 = temp;
+
+    return top;
+}
+
+int top(Stack* s) {
+    if (isEmpty(&s->q1)) return -1;
+
+    while (s->q1.front != s->q1.rear) {
+        enqueue(&s->q2, dequeue(&s->q1));
+    }
+
+    int topElement = s->q1.arr[s->q1.front];
+    enqueue(&s->q2, dequeue(&s->q1));
+
+    Queue temp = s->q1;
+    s->q1 = s->q2;
+    s->q2 = temp;
+
+    return topElement;
+}
+
+bool isStackEmpty(Stack* s) {
+    return isEmpty(&s->q1);
+}
+
+int main() {
+    Stack s;
+    initStack(&s);
+
+    push(&s, 10);
+    push(&s, 20);
+    push(&s, 30);
+
+    printf("Top: %d\n", top(&s));
+    printf("Pop: %d\n", pop(&s));
+    printf("Is empty: %d\n", isStackEmpty(&s));
+
+    return 0;
+}
