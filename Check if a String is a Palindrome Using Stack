@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+#define MAX 100
+
+// Stack structure
+typedef struct {
+    char arr[MAX];
+    int top;
+} Stack;
+
+void init(Stack *s) {
+    s->top = -1;
+}
+
+bool isEmpty(Stack *s) {
+    return s->top == -1;
+}
+
+void push(Stack *s, char c) {
+    if (s->top < MAX - 1) {
+        s->arr[++s->top] = c;
+    }
+}
+
+char pop(Stack *s) {
+    if (!isEmpty(s)) {
+        return s->arr[s->top--];
+    }
+    return '\0';
+}
+
+// Check palindrome
+bool isPalindrome(char str[]) {
+    Stack s;
+    init(&s);
+
+    int len = strlen(str);
+
+    // Push all characters
+    for (int i = 0; i < len; i++) {
+        push(&s, str[i]);
+    }
+
+    // Form reversed string
+    for (int i = 0; i < len; i++) {
+        if (str[i] != pop(&s)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int main() {
+    char str[MAX];
+
+    printf("Enter a string: ");
+    scanf("%s", str);
+
+    if (isPalindrome(str))
+        printf("Palindrome\n");
+    else
+        printf("Not Palindrome\n");
+
+    return 0;
+}
