@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct HashNode {
+    int key;
+    struct HashNode *next;
+} HashNode;
+
+#define TABLE_SIZE 10007  // a prime number for hash table size
+
+HashNode *table[TABLE_SIZE];
+
+int hashFunc(int key) {
+    int h = key % TABLE_SIZE;
+    if (h < 0) h += TABLE_SIZE;
+    return h;
+}
+
+void insertKey(int key) {
+    int idx = hashFunc(key);
+    HashNode *node = malloc(sizeof(HashNode));
+    node->key = key;
+    node->next = table[idx];
+    table[idx] = node;
+}
+
+int existsKey(int key) {
+    int idx = hashFunc(key);
+    HashNode *node = table[idx];
+    while (node) {
+        if (node->key == key) return 1;
+        node = node->next;
+    }
+    return 0;
+}
+
+int hasPairWithSum(int *arr, int n, int target) {
+    int i;
+    for (i = 0; i < TABLE_SIZE; i++) table[i] = NULL;
+    for (i = 0; i < n; i++) {
+        int x = arr[i];
+        int need = target - x;
+        if (existsKey(need)) {
+            return 1;
+        }
+        insertKey(x);
+    }
+    return 0;
+}
+
+int main() {
+    int arr1[] = {10, 15, 3, 7};
+    int arr2[] = {1, 2, 3, 4};
+    printf("%d\n", hasPairWithSum(arr1, 4, 17)); // prints 1 (true)
+    printf("%d\n", hasPairWithSum(arr2, 4, 8));  // prints 0 (false)
+    return 0;
+}
