@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_STRINGS 100
+#define MAX_LEN     100
+
+// Simple key: sorted version of string.
+// We use a fixed small hash table for demonstration.
+typedef struct Entry {
+    char key[MAX_LEN];
+    char *words[MAX_STRINGS];
+    int count;
+    struct Entry *next;
+} Entry;
+
+#define TABLE_SIZE 1009
+Entry *htable[TABLE_SIZE];
+
+int hashStr(const char *s) {
+    unsigned long h = 5381;
+    int c;
+    while ((c = *s++))
+        h = ((h << 5) + h) + c;
+    return h % TABLE_SIZE;
+}
+
+char* sortedStr(const char *s) {
+    int len = strlen(s);
+    char *t = malloc(len+1);
+    strcpy(t, s);
+    qsort(t, len, sizeof(char), (int(*)(const void*, const void*))strcmp);
+    return t;
+}
+
+void insertWord(const char *s) {
+    char *key = sortedStr(s);
+    int idx = hashStr(key);
+    Entry *e = htable[idx];
+    while (e) {
+        if (strcmp(e->key, key) == 0) break;
+        e = e->next;
+    }
+    if (!e) {
+        e = malloc(sizeof(Entry));
+        strcpy(e->key, key);
+        e->count = 0;
+        e->next = htable[idx];
+        htable[idx] = e;
+    }
+    e->words[e->count++] = strdup(s);
+    free(key);
+}
+
+void printGroups() {
+    int i;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        Entry *e = htable[i];
+        while (e) {
+            int j;
+            printf("[ ");
+            for (j = 0; j < e->count; j++) {
+                printf("%s ", e->words[j]);
+            }
+            printf("]\n");
+            e = e->next;
+        }
+    }
+}
+
+int main() {
+    char *arr[] = {"eat","tea","tan","ate","nat","bat"};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int i;
+    for (i = 0; i < TABLE_SIZE; i++) htable[i] = NULL;
+    for (i = 0; i < n; i++) {
+        insertWord(arr[i]);
+    }
+    printGroups();
+    return 0;
+}
