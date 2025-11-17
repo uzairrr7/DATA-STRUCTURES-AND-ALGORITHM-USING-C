@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    long sum;
+    int index;
+    struct Node *next;
+} Node;
+
+#define TABLE_SIZE 10007
+
+Node *sumTable[TABLE_SIZE];
+
+int hashSum(long s) {
+    long h = s % TABLE_SIZE;
+    if (h < 0) h += TABLE_SIZE;
+    return (int)h;
+}
+
+void insertSum(long s, int idx) {
+    int h = hashSum(s);
+    Node *node = malloc(sizeof(Node));
+    node->sum = s;
+    node->index = idx;
+    node->next = sumTable[h];
+    sumTable[h] = node;
+}
+
+int findSum(long s, int *outIndex) {
+    int h = hashSum(s);
+    Node *node = sumTable[h];
+    while (node) {
+        if (node->sum == s) {
+            *outIndex = node->index;
+            return 1;
+        }
+        node = node->next;
+    }
+    return 0;
+}
+
+int subarrayZeroSum(int *arr, int n, int *start, int *end) {
+    int i;
+    long prefix = 0;
+    for (i = 0; i < TABLE_SIZE; i++) sumTable[i] = NULL;
+
+    insertSum(0, -1);    // handle prefix sum = 0 at index -1
+    for (i = 0; i < n; i++) {
+        prefix += arr[i];
+        int prevIndex;
+        if (findSum(prefix, &prevIndex)) {
+            *start = prevIndex + 1;
+            *end = i;
+            return 1;
+        }
+        insertSum(prefix, i);
+    }
+    return 0;
+}
+
+int main() {
+    int arr[] = {4, -3, -1, -2, 1, 5};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int s, e;
+    if (subarrayZeroSum(arr, n, &s, &e)) {
+        printf("Subarray [%d..%d] sums to zero.\n", s, e);
+    } else {
+        printf("No subarray sums to zero.\n");
+    }
+    return 0;
+}
