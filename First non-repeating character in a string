@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <string.h>
+#define SIZE 256
+
+int firstNonRepeating(char *s) {
+    int freq[SIZE] = {0};
+    int i;
+    int n = strlen(s);
+    for (i = 0; i < n; i++) {
+        unsigned char ch = s[i];
+        freq[ch]++;
+    }
+    for (i = 0; i < n; i++) {
+        unsigned char ch = s[i];
+        if (freq[ch] == 1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int main() {
+    char s1[] = "leetcode";
+    char s2[] = "loveleetcode";
+    printf("%d\n", firstNonRepeating(s1));   // prints 0
+    printf("%d\n", firstNonRepeating(s2));   // prints 2
+    return 0;
+}
