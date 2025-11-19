@@ -1,0 +1,22 @@
+#include <stdio.h>
+
+void merge(int a[], int n, int b[], int m, int res[]) {
+    int i = 0, j = 0, k = 0;
+
+    while (i < n && j < m) {
+        if (a[i] < b[j]) res[k++] = a[i++];
+        else res[k++] = b[j++];
+    }
+    while (i < n) res[k++] = a[i++];
+    while (j < m) res[k++] = b[j++];
+}
+
+int main() {
+    int a[] = {1,3,5};
+    int b[] = {2,4,6};
+    int res[6];
+
+    merge(a,3,b,3,res);
+
+    for (int i = 0; i < 6; i++) printf("%d ", res[i]);
+}
