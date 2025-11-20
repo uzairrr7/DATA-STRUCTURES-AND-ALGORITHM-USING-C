@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <string.h>
+
+#define ALPHA_SIZE 256
+
+// returns index of first non-repeating char, or -1 if none
+int firstNonRepeatingChar(const char *s) {
+    int freq[ALPHA_SIZE] = {0};
+    int i, len = strlen(s);
+
+    // count all chars
+    for (i = 0; i < len; i++) {
+        freq[(unsigned char)s[i]]++;
+    }
+    // find first with count 1
+    for (i = 0; i < len; i++) {
+        if (freq[(unsigned char)s[i]] == 1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int main() {
+    char s1[] = "leetcode";
+    char s2[] = "loveleetcode";
+    int idx;
+
+    idx = firstNonRepeatingChar(s1);
+    printf("First non-repeating in \"%s\" is at index %d (%c)\n",
+           s1, idx, (idx >=0 ? s1[idx] : '?'));
+
+    idx = firstNonRepeatingChar(s2);
+    printf("First non-repeating in \"%s\" is at index %d (%c)\n",
+           s2, idx, (idx >=0 ? s2[idx] : '?'));
+
+    return 0;
+}
