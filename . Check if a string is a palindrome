@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+
+// returns true if s is a palindrome considering only letters+digits and ignoring case
+bool isPalindrome(const char *s) {
+    int i = 0, j = strlen(s) - 1;
+    while (i < j) {
+        // move i forward until alphanumeric or end
+        while (i < j && !isalnum((unsigned char)s[i])) i++;
+        // move j backward until alphanumeric or start
+        while (i < j && !isalnum((unsigned char)s[j])) j--;
+        if (i < j) {
+            if (tolower((unsigned char)s[i]) != tolower((unsigned char)s[j])) {
+                return false;
+            }
+            i++;
+            j--;
+        }
+    }
+    return true;
+}
+
+int main() {
+    char s1[] = "A man, a plan, a canal: Panama";
+    char s2[] = "race a car";
+    printf("\"%s\" -> %s\n", s1, isPalindrome(s1) ? "true" : "false");
+    printf("\"%s\" -> %s\n", s2, isPalindrome(s2) ? "true" : "false");
+    return 0;
+}
