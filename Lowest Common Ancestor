@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node { int v; struct Node* left; struct Node* right; } Node;
+Node* newNode(int x){ Node* n=malloc(sizeof(Node)); n->v=x;n->left=n->right=NULL;return n; }
+
+Node* lca(Node* root, int a, int b){
+    if(!root) return NULL;
+    if(root->v==a || root->v==b) return root;
+    Node* L = lca(root->left, a, b);
+    Node* R = lca(root->right, a, b);
+    if(L && R) return root;
+    return L?L:R;
+}
+
+int main(){
+    Node* r=newNode(3);
+    r->left=newNode(5); r->right=newNode(1);
+    r->left->left=newNode(6); r->left->right=newNode(2);
+    Node* ans = lca(r, 6, 2);
+    if(ans) printf("LCA: %d\n", ans->v); // 5
+    return 0;
+}
