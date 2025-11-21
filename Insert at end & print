@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+
+Node* insert_end(Node* tail, int val) {
+    Node* n = malloc(sizeof(Node));
+    n->data = val;
+    if (!tail) {
+        n->next = n;
+        return n;
+    }
+    n->next = tail->next;
+    tail->next = n;
+    return n; // new tail
+}
+
+void print_circular(Node* tail) {
+    if (!tail) { printf("Empty\n"); return; }
+    Node* cur = tail->next;
+    do {
+        printf("%d ", cur->data);
+        cur = cur->next;
+    } while (cur != tail->next);
+    printf("\n");
+}
+
+int main() {
+    Node* tail = NULL;
+    tail = insert_end(tail, 10);
+    tail = insert_end(tail, 20);
+    tail = insert_end(tail, 30);
+    print_circular(tail); // prints: 10 20 30
+    return 0;
+}
