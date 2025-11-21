@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node { int v; struct Node* next; } Node;
+Node* reverse(Node* head){
+    Node *prev = NULL, *cur = head;
+    while (cur) {
+        Node* nxt = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = nxt;
+    }
+    return prev;
+}
+Node* newNode(int x){ Node* n=malloc(sizeof(Node)); n->v=x; n->next=NULL; return n; }
+int main(){
+    Node* h = newNode(1); h->next=newNode(2); h->next->next=newNode(3);
+    h = reverse(h);
+    for(Node* p=h;p;p=p->next) printf("%d ", p->v); // 3 2 1
+    printf("\n");
+    return 0;
+}
