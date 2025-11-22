@@ -1,0 +1,21 @@
+#include <stdio.h>
+
+int minCoins(int coins[], int m, int V) {
+    int count = 0;
+    for (int i = m-1; i >= 0; i--) {
+        if (coins[i] <= V) {
+            int use = V / coins[i];
+            count += use;
+            V -= use * coins[i];
+        }
+    }
+    return count;
+}
+
+int main() {
+    int coins[] = {1, 2, 5, 10, 20, 50, 100};
+    int m = sizeof(coins)/sizeof(coins[0]);
+    int V = 289;
+    printf("Minimum coins required = %d\n", minCoins(coins, m, V));
+    return 0;
+}
