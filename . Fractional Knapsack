@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int value, weight;
+    double ratio;
+} Item;
+
+int cmpRatio(const void *a, const void *b) {
+    Item *A = (Item*)a;
+    Item *B = (Item*)b;
+    if (B->ratio > A->ratio) return 1;
+    else if (B->ratio < A->ratio) return -1;
+    else return 0;
+}
+
+double fractionalKnapsack(Item items[], int n, int W) {
+    for (int i = 0; i < n; i++) {
+        items[i].ratio = (double)items[i].value / items[i].weight;
+    }
+    qsort(items, n, sizeof(Item), cmpRatio);
+    double totalValue = 0.0;
+    int remaining = W;
+    for (int i = 0; i < n; i++) {
+        if (items[i].weight <= remaining) {
+            remaining -= items[i].weight;
+            totalValue += items[i].value;
+        } else {
+            totalValue += items[i].ratio * remaining;
+            break;
+        }
+    }
+    return totalValue;
+}
+
+int main() {
+    Item items[] = { {60, 10}, {100, 20}, {120, 30} };
+    int n = sizeof(items)/sizeof(items[0]);
+    int W = 50;
+    printf("Maximum value in knapsack = %0.2f\n", fractionalKnapsack(items, n, W));
+    return 0;
+}
