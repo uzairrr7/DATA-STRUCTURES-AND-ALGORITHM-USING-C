@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int start, finish;
+} Activity;
+
+int cmpFinish(const void *a, const void *b) {
+    Activity *A = (Activity*)a;
+    Activity *B = (Activity*)b;
+    return A->finish - B->finish;
+}
+
+int maxActivities(Activity arr[], int n) {
+    qsort(arr, n, sizeof(Activity), cmpFinish);
+    int count = 1;
+    int last_finish = arr[0].finish;
+    for (int i = 1; i < n; i++) {
+        if (arr[i].start >= last_finish) {
+            count++;
+            last_finish = arr[i].finish;
+        }
+    }
+    return count;
+}
+
+int main() {
+    Activity arr[] = { {1,4}, {3,5}, {0,6}, {5,7}, {3,9}, {5,9}, {6,10}, {8,11}, {8,12}, {2,14}, {12,16} };
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Maximum number of non-overlapping activities = %d\n", maxActivities(arr, n));
+    return 0;
+}
