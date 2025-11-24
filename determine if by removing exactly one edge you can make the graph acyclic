@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAXV 10000
+
+int V, E;
+int *adj[MAXV];
+int adjCount[MAXV];
+int visited[MAXV];
+
+// DFS to count vertices and edges (undirected) in the component
+void dfs_comp(int u, int *vCount, int *eCount) {
+    visited[u] = 1;
+    (*vCount)++;
+    for (int i = 0; i < adjCount[u]; i++) {
+        int v = adj[u][i];
+        (*eCount)++;
+        if (!visited[v]) {
+            dfs_comp(v, vCount, eCount);
+        }
+    }
+}
+
+int main() {
+    scanf("%d %d", &V, &E);
+    for (int i = 0; i < V; i++) {
+        adjCount[i] = 0;
+        visited[i] = 0;
+    }
+    for (int i = 0; i < E; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        adj[u][ adjCount[u]++ ] = v;
+        adj[v][ adjCount[v]++ ] = u;
+    }
+    int possible = 0;
+    for (int i = 0; i < V; i++) {
+        if (!visited[i]) {
+            int vCount = 0;
+            int eCount = 0;
+            dfs_comp(i, &vCount, &eCount);
+            // in undirected we counted each edge twice (u->v and v->u)
+            eCount /= 2;
+            // For a tree we have edges = vertices − 1
+            // If edges = vertices then exactly one cycle exists in that component
+            if (eCount == vCount) {
+                // this component has exactly one cycle
+                possible++;
+            } else if (eCount > vCount) {
+                // more than one cycle
+                possible = 1000000; // mark invalid
+            }
+        }
+    }
+    if (possible == 1) {
+        printf("YES\n");
+    } else {
+        printf("NO\n");
+    }
+    return 0;
+}
