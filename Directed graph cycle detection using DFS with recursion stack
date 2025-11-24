@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAXV 10000
+
+int V, E;
+int *adj[MAXV];
+int adjCount[MAXV];
+
+int visited[MAXV];
+int recStack[MAXV];
+
+int dfs(int u) {
+    visited[u] = 1;
+    recStack[u] = 1;
+    for(int i=0;i<adjCount[u];i++){
+        int v = adj[u][i];
+        if (!visited[v]) {
+            if (dfs(v)) return 1;
+        } else if (recStack[v]) {
+            return 1;
+        }
+    }
+    recStack[u] = 0;
+    return 0;
+}
+
+int main(){
+    scanf("%d %d", &V, &E);
+    for(int i=0;i<V;i++){
+        adjCount[i]=0;
+        visited[i]=0;
+        recStack[i]=0;
+    }
+    for(int i=0;i<E;i++){
+        int u,v;
+        scanf("%d %d", &u, &v);
+        adj[u][ adjCount[u]++ ] = v;
+    }
+    int cycle=0;
+    for(int i=0;i<V;i++){
+        if (!visited[i]) {
+            if (dfs(i)) {
+                cycle = 1;
+                break;
+            }
+        }
+    }
+    printf("%d\n", cycle);
+    return 0;
+}
