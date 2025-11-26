@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define MAX 100
+
+typedef struct Graph {
+    int V;
+    int adj[MAX][MAX];
+} Graph;
+
+void topologicalSortUtil(Graph* g, int v, bool visited[], int* stack, int* top) {
+    visited[v] = true;
+    
+    for (int i = 0; i < g->V; i++) {
+        if (g->adj[v][i] && !visited[i])
+            topologicalSortUtil(g, i, visited, stack, top);
+    }
+    
+    stack[++(*top)] = v;
+}
+
+void topologicalSort(Graph* g) {
+    int stack[MAX];
+    int top = -1;
+    bool visited[MAX] = {false};
+    
+    for (int i = 0; i < g->V; i++)
+        if (!visited[i])
+            topologicalSortUtil(g, i, visited, stack, &top);
+    
+    printf("Topological Sort: ");
+    while (top >= 0)
+        printf("%d ", stack[top--]);
+    printf("\n");
+}
+
+void addEdge(Graph* g, int u, int v) {
+    g->adj[u][v] = 1;
+}
+
+int main() {
+    Graph g;
+    g.V = 6;
+    
+    for (int i = 0; i < MAX; i++)
+        for (int j = 0; j < MAX; j++)
+            g.adj[i][j] = 0;
+    
+    addEdge(&g, 5, 2);
+    addEdge(&g, 5, 0);
+    addEdge(&g, 4, 0);
+    addEdge(&g, 4, 1);
+    addEdge(&g, 2, 3);
+    addEdge(&g, 3, 1);
+    
+    topologicalSort(&g);
+    
+    return 0;
+}
