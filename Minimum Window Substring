@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+
+char* minWindow(char* s, char* t) {
+    if (!s || !t || strlen(s) == 0 || strlen(t) == 0) return "";
+    
+    int dictT[128] = {0};
+    int windowCounts[128] = {0};
+    
+    for (int i = 0; t[i] != '\0'; i++) {
+        dictT[(int)t[i]]++;
+    }
+    
+    int required = 0;
+    for (int i = 0; i < 128; i++) {
+        if (dictT[i] > 0) required++;
+    }
+    
+    int left = 0, right = 0;
+    int formed = 0;
+    int minLen = INT_MAX;
+    int minLeft = 0;
+    int sLen = strlen(s);
+    
+    while (right < sLen) {
+        char c = s[right];
+        windowCounts[(int)c]++;
+        
+        if (dictT[(int)c] > 0 && windowCounts[(int)c] == dictT[(int)c]) {
+            formed++;
+        }
+        
+        while (left <= right && formed == required) {
+            c = s[left];
+            
+            if (right - left + 1 < minLen) {
+                minLen = right - left + 1;
+                minLeft = left;
+            }
+            
+            windowCounts[(int)c]--;
+            if (dictT[(int)c] > 0 && windowCounts[(int)c] < dictT[(int)c]) {
+                formed--;
+            }
+            left++;
+        }
+        right++;
+    }
+    
+    static char result[10000];
+    if (minLen == INT_MAX) {
+        result[0] = '\0';
+        return result;
+    }
+    
+    strncpy(result, s + minLeft, minLen);
+    result[minLen] = '\0';
+    return result;
+}
+
+int main() {
+    char s[] = "ADOBECODEBANC";
+    char t[] = "ABC";
+    
+    char* result = minWindow(s, t);
+    printf("Minimum window substring: '%s'\n", result);
+    
+    return 0;
+}
