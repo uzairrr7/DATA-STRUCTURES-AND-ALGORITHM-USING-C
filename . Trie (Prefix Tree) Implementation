@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+#define ALPHABET_SIZE 26
+
+typedef struct TrieNode {
+    struct TrieNode* children[ALPHABET_SIZE];
+    bool isEndOfWord;
+} TrieNode;
+
+TrieNode* createNode() {
+    TrieNode* node = (TrieNode*)malloc(sizeof(TrieNode));
+    node->isEndOfWord = false;
+    
+    for (int i = 0; i < ALPHABET_SIZE; i++)
+        node->children[i] = NULL;
+    
+    return node;
+}
+
+void insert(TrieNode* root, const char* key) {
+    TrieNode* curr = root;
+    
+    for (int i = 0; key[i] != '\0'; i++) {
+        int index = key[i] - 'a';
+        if (!curr->children[index])
+            curr->children[index] = createNode();
+        
+        curr = curr->children[index];
+    }
+    
+    curr->isEndOfWord = true;
+}
+
+bool search(TrieNode* root, const char* key) {
+    TrieNode* curr = root;
+    
+    for (int i = 0; key[i] != '\0'; i++) {
+        int index = key[i] - 'a';
+        if (!curr->children[index])
+            return false;
+        
+        curr = curr->children[index];
+    }
+    
+    return curr->isEndOfWord;
+}
+
+bool startsWith(TrieNode* root, const char* prefix) {
+    TrieNode* curr = root;
+    
+    for (int i = 0; prefix[i] != '\0'; i++) {
+        int index = prefix[i] - 'a';
+        if (!curr->children[index])
+            return false;
+        
+        curr = curr->children[index];
+    }
+    
+    return true;
+}
+
+int main() {
+    TrieNode* root = createNode();
+    
+    insert(root, "apple");
+    insert(root, "app");
+    insert(root, "application");
+    insert(root, "apply");
+    
+    printf("Search 'apple': %s\n", search(root, "apple") ? "Found" : "Not Found");
+    printf("Search 'app': %s\n", search(root, "app") ? "Found" : "Not Found");
+    printf("Search 'appl': %s\n", search(root, "appl") ? "Found" : "Not Found");
+    printf("Starts with 'app': %s\n", startsWith(root, "app") ? "Yes" : "No");
+    printf("Starts with 'apl': %s\n", startsWith(root, "apl") ? "Yes" : "No");
+    
+    return 0;
+}
