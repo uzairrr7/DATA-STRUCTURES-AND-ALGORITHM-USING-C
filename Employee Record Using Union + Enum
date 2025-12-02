@@ -1,0 +1,27 @@
+#include <stdio.h>
+
+enum EmpType { SALARIED, HOURLY };
+
+union Pay {
+    float salary;
+    int hourlyWage;
+};
+
+struct Employee {
+    char name[20];
+    enum EmpType type;
+    union Pay pay;
+};
+
+int main() {
+    struct Employee e1 = {"Uzair", SALARIED, .pay.salary = 50000.50};
+    struct Employee e2 = {"Sam", HOURLY, .pay.hourlyWage = 450};
+
+    if (e1.type == SALARIED)
+        printf("%s has salary: %.2f\n", e1.name, e1.pay.salary);
+
+    if (e2.type == HOURLY)
+        printf("%s has hourly wage: %d\n", e2.name, e2.pay.hourlyWage);
+
+    return 0;
+}
