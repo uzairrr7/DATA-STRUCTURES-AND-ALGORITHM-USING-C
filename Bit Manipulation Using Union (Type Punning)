@@ -1,0 +1,18 @@
+#include <stdio.h>
+
+union ByteBreak {
+    int num;
+    unsigned char bytes[4];
+};
+
+int main() {
+    union ByteBreak b;
+    b.num = 0x12345678;
+
+    printf("Byte 1: %02X\n", b.bytes[0]);
+    printf("Byte 2: %02X\n", b.bytes[1]);
+    printf("Byte 3: %02X\n", b.bytes[2]);
+    printf("Byte 4: %02X\n", b.bytes[3]);
+
+    return 0;
+}
