@@ -1,0 +1,38 @@
+#include <stdio.h>
+
+enum Type { INT, FLOAT, CHAR };
+
+union Value {
+    int i;
+    float f;
+    char c;
+};
+
+struct StackElement {
+    enum Type type;
+    union Value val;
+};
+
+int main() {
+    struct StackElement stack[3];
+
+    stack[0].type = INT;
+    stack[0].val.i = 10;
+
+    stack[1].type = FLOAT;
+    stack[1].val.f = 5.5;
+
+    stack[2].type = CHAR;
+    stack[2].val.c = 'A';
+
+    for (int i = 0; i < 3; i++) {
+        if (stack[i].type == INT)
+            printf("INT: %d\n", stack[i].val.i);
+        else if (stack[i].type == FLOAT)
+            printf("FLOAT: %.2f\n", stack[i].val.f);
+        else
+            printf("CHAR: %c\n", stack[i].val.c);
+    }
+
+    return 0;
+}
