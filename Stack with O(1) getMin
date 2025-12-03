@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct {
+    long *arr;
+    int top;
+    int capacity;
+    long currentMin;
+} MinStack;
+
+MinStack* createStack(int cap) {
+    MinStack *s = malloc(sizeof(MinStack));
+    s->arr = malloc(sizeof(long) * cap);
+    s->top = -1;
+    s->capacity = cap;
+    s->currentMin = LONG_MAX;
+    return s;
+}
+
+void push(MinStack *s, long x) {
+    if (s->top + 1 == s->capacity) {
+        s->capacity *= 2;
+        s->arr = realloc(s->arr, sizeof(long) * s->capacity);
+    }
+    if (s->top == -1) {
+        s->arr[++s->top] = x;
+        s->currentMin = x;
+    } else if (x >= s->currentMin) {
+        s->arr[++s->top] = x;
+    } else {
+        // store encoded
+        long encoded = 2*x - s->currentMin;
+        s->arr[++s->top] = encoded;
+        s->currentMin = x;
+    }
+}
+
+long top(MinStack *s) {
+    if (s->top == -1) return LONG_MIN; // empty
+    long val = s->arr[s->top];
+    if (val < s->currentMin) return s->currentMin; // encoded
+    return val;
+}
+
+void popStack(MinStack *s) {
+    if (s->top == -1) return;
+    long val = s->arr[s->top--];
+    if (val < s->currentMin) {
+        // decode previous min
+        s->currentMin = 2*s->currentMin - val;
+    }
+    if (s->top == -1) s->currentMin = LONG_MAX;
+}
+
+long getMin(MinStack *s) {
+    if (s->top == -1) return LONG_MIN;
+    return s->currentMin;
+}
+
+int main() {
+    MinStack *s = createStack(4);
+    push(s, 3);
+    push(s, 5);
+    printf("Min: %ld\n", getMin(s)); // 3
+    push(s, 2);
+    push(s, 1);
+    printf("Min: %ld\n", getMin(s)); // 1
+    popStack(s);
+    printf("Min: %ld\n", getMin(s)); // 2
+    popStack(s);
+    printf("Top: %ld, Min: %ld\n", top(s), getMin(s)); // 5,3
+    return 0;
+}
