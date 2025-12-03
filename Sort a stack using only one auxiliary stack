@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int *a; int top; int cap;
+} St;
+
+St* createS(int n){ St*s=malloc(sizeof(St)); s->a=malloc(sizeof(int)*n); s->top=-1; s->cap=n; return s; }
+void pushS(St*s,int v){ if(s->top+1==s->cap){ s->cap*=2; s->a=realloc(s->a,sizeof(int)*s->cap);} s->a[++s->top]=v; }
+int popS(St*s){ if(s->top==-1){fprintf(stderr,"Underflow\n"); exit(1);} return s->a[s->top--]; }
+int peekS(St*s){ if(s->top==-1) return INT_MIN; return s->a[s->top]; }
+int emptyS(St*s){ return s->top==-1; }
+
+void sortStack(St *s) {
+    St *aux = createS(16);
+    while(!emptyS(s)) {
+        int tmp = popS(s);
+        while(!emptyS(aux) && peekS(aux) > tmp) {
+            pushS(s, popS(aux));
+        }
+        pushS(aux, tmp);
+    }
+    // Now aux has sorted items with largest at top; move back so smallest on top of s
+    while(!emptyS(aux)) pushS(s, popS(aux));
+}
+
+void printStack(St*s){
+    for(int i=s->top;i>=0;i--) printf("%d ", s->a[i]);
+    printf("\n");
+}
+
+int main(){
+    St *s = createS(8);
+    int vals[] = {34, 3, 31, 98, 92, 23};
+    for(int i=0;i<6;i++) pushS(s, vals[i]);
+    printf("Before: ");
+    printStack(s);
+    sortStack(s);
+    printf("After (top -> bottom): ");
+    printStack(s);
+    return 0;
+}
