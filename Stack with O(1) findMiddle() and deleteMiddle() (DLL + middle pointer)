@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int val;
+    struct Node *prev, *next;
+} Node;
+
+typedef struct {
+    Node *head; // top
+    Node *mid;
+    int size;
+} O1Stack;
+
+O1Stack* createStack(){
+    O1Stack *s = malloc(sizeof(O1Stack));
+    s->head = s->mid = NULL;
+    s->size = 0;
+    return s;
+}
+
+void pushO1(O1Stack *s, int x){
+    Node *n = malloc(sizeof(Node));
+    n->val = x; n->prev = NULL; n->next = s->head;
+    if (s->head) s->head->prev = n;
+    s->head = n;
+    s->size++;
+    if (s->size == 1) s->mid = n;
+    else if (s->size % 2 == 0) s->mid = s->mid->prev;
+}
+
+int popO1(O1Stack *s){
+    if (!s->head) { fprintf(stderr,"Empty\n"); exit(1); }
+    Node *n = s->head;
+    int val = n->val;
+    s->head = n->next;
+    if (s->head) s->head->prev = NULL;
+    s->size--;
+    if (s->size == 0) s->mid = NULL;
+    else if (s->size % 2 == 1) s->mid = s->mid->next;
+    free(n);
+    return val;
+}
+
+int findMiddle(O1Stack *s){
+    if (!s->mid) { fprintf(stderr,"Empty\n"); exit(1); }
+    return s->mid->val;
+}
+
+void deleteMiddle(O1Stack *s){
+    if (!s->mid) return;
+    Node *m = s->mid;
+    if (m->prev) m->prev->next = m->next;
+    if (m->next) m->next->prev = m->prev;
+    if (s->size == 1) s->head = NULL;
+    else if (s->size % 2 == 0) s->mid = m->prev; // after deletion size-1 is odd
+    else s->mid = m->next;
+    s->size--;
+    free(m);
+    if (s->size == 0) s->mid = NULL;
+}
+
+int main(){
+    O1Stack *s = createStack();
+    pushO1(s, 1);
+    pushO1(s, 2);
+    pushO1(s, 3);
+    pushO1(s, 4);
+    pushO1(s, 5); // stack top=5
+    printf("Middle: %d\n", findMiddle(s)); // 3
+    deleteMiddle(s);
+    printf("Middle after delete: %d\n", findMiddle(s)); // 4
+    printf("Pop: %d\n", popO1(s)); // 5
+    printf("New middle: %d\n", findMiddle(s)); // 2
+    return 0;
+}
