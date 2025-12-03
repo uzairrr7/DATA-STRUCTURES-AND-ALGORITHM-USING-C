@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+typedef struct {
+    long *arr;
+    int top;
+    int cap;
+} Stack;
+
+Stack* create(int n){ Stack *s=malloc(sizeof(Stack)); s->arr=malloc(sizeof(long)*n); s->top=-1; s->cap=n; return s; }
+void push(Stack*s,long v){ if(s->top+1==s->cap){ s->cap*=2; s->arr=realloc(s->arr,sizeof(long)*s->cap);} s->arr[++s->top]=v; }
+long pop(Stack*s){ if(s->top==-1) {fprintf(stderr,"Stack underflow\n"); exit(1);} return s->arr[s->top--]; }
+int isNumber(const char *tok){
+    if(*tok=='\0') return 0;
+    if(*tok=='-' || *tok=='+') tok++;
+    if(!*tok) return 0;
+    while(*tok){ if(!isdigit((unsigned char)*tok)) return 0; tok++; }
+    return 1;
+}
+
+long evalPostfix(char *expr) {
+    Stack *s = create(16);
+    char *tok = strtok(expr, " ");
+    while(tok) {
+        if (isNumber(tok)) {
+            push(s, atol(tok));
+        } else {
+            long b = pop(s);
+            long a = pop(s);
+            if (strcmp(tok, "+") == 0) push(s, a + b);
+            else if (strcmp(tok, "-") == 0) push(s, a - b);
+            else if (strcmp(tok, "*") == 0) push(s, a * b);
+            else if (strcmp(tok, "/") == 0) push(s, a / b); // integer division
+            else { fprintf(stderr, "Unknown operator %s\n", tok); exit(1); }
+        }
+        tok = strtok(NULL, " ");
+    }
+    long res = pop(s);
+    if (s->top != -1) { fprintf(stderr,"Invalid postfix (extra operands)\n"); exit(1); }
+    return res;
+}
+
+int main() {
+    // Example: (15 + ((-3) * 2)) => postfix "15 -3 2 * +"
+    char input[] = "15 -3 2 * +";
+    printf("Expr: %s\nResult: %ld\n", input, evalPostfix(input));
+    return 0;
+}
