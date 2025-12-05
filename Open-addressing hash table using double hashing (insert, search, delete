@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define EMPTY 0
+#define DELETED -1
+
+typedef struct {
+    int *table;
+    int capacity;
+    int size;
+} DoubleHashTable;
+
+int hash1(int key, int m) { return (key % m + m) % m; }
+int hash2(int key, int m) { return 1 + ((key / m) % (m - 1)); } // must be non-zero and < m
+
+DoubleHashTable* create_table(int capacity) {
+    DoubleHashTable *ht = malloc(sizeof(DoubleHashTable));
+    ht->capacity = capacity;
+    ht->size = 0;
+    ht->table = malloc(sizeof(int) * capacity);
+    for (int i=0;i<capacity;i++) ht->table[i] = EMPTY;
+    return ht;
+}
+
+bool insert(DoubleHashTable *ht, int key) {
+    if (ht->size == ht->capacity) return false;
+    int m = ht->capacity;
+    int i = hash1(key, m);
+    int step = hash2(key, m);
+    int idx = i;
+    int probe = 0;
+    int firstDeleted = -1;
+    while (probe < m) {
+        int val = ht->table[idx];
+        if (val == EMPTY) {
+            if (firstDeleted != -1) idx = firstDeleted;
+            ht->table[idx] = key;
+            ht->size++;
+            return true;
+        } else if (val == DELETED) {
+            if (firstDeleted == -1) firstDeleted = idx;
+        } else if (val == key) {
+            return true; // already present
+        }
+        probe++;
+        idx = (i + probe * step) % m;
+    }
+    if (firstDeleted != -1) {
+        ht->table[firstDeleted] = key;
+        ht->size++;
+        return true;
+    }
+    return false;
+}
+
+bool search(DoubleHashTable *ht, int key) {
+    int m = ht->capacity;
+    int i = hash1(key, m);
+    int step = hash2(key, m);
+    int idx = i;
+    int probe = 0;
+    while (probe < m) {
+        int val = ht->table[idx];
+        if (val == EMPTY) return false;
+        if (val != DELETED && val == key) return true;
+        probe++;
+        idx = (i + probe * step) % m;
+    }
+    return false;
+}
+
+bool delete_key(DoubleHashTable *ht, int key) {
+    int m = ht->capacity;
+    int i = hash1(key, m);
+    int step = hash2(key, m);
+    int idx = i;
+    int probe = 0;
+    while (probe < m) {
+        int val = ht->table[idx];
+        if (val == EMPTY) return false;
+        if (val != DELETED && val == key) {
+            ht->table[idx] = DELETED;
+            ht->size--;
+            return true;
+        }
+        probe++;
+        idx = (i + probe * step) % m;
+    }
+    return false;
+}
+
+void free_table(DoubleHashTable *ht) {
+    free(ht->table);
+    free(ht);
+}
+
+int main() {
+    DoubleHashTable *ht = create_table(11);
+    int arr[] = {22, 41, 53, 46, 30, 13};
+    for (int i=0;i<6;i++) insert(ht, arr[i]);
+    printf("Search 46: %s\n", search(ht,46) ? "found":"not found");
+    delete_key(ht,46);
+    printf("Search 46 after delete: %s\n", search(ht,46) ? "found":"not found");
+    printf("Insert 46 again: %s\n", insert(ht,46) ? "ok":"fail");
+    free_table(ht);
+    return 0;
+}
