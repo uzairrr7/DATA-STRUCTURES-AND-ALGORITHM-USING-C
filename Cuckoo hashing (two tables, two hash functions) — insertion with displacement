@@ -1,0 +1,112 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct {
+    int *t1, *t2;
+    int cap;
+    int size;
+} Cuckoo;
+
+int h1(int key, int cap) { return (key * 2654435761u) % cap; }
+int h2(int key, int cap) { return (key * 97531u + 7) % cap; }
+
+Cuckoo* create_cuckoo(int cap) {
+    Cuckoo *c = malloc(sizeof(Cuckoo));
+    c->cap = cap;
+    c->size = 0;
+    c->t1 = malloc(sizeof(int)*cap);
+    c->t2 = malloc(sizeof(int)*cap);
+    for (int i=0;i<cap;i++){ c->t1[i]=INT_MIN; c->t2[i]=INT_MIN; }
+    return c;
+}
+
+bool search(Cuckoo *c, int key) {
+    return c->t1[h1(key,c->cap)]==key || c->t2[h2(key,c->cap)]==key;
+}
+
+void free_cuckoo(Cuckoo *c) {
+    free(c->t1); free(c->t2); free(c);
+}
+
+Cuckoo* rehash_and_grow(Cuckoo *c) {
+    int newcap = c->cap * 2 + 1;
+    Cuckoo *newc = create_cuckoo(newcap);
+    // re-insert existing
+    for (int i=0;i<c->cap;i++) {
+        if (c->t1[i]!=INT_MIN) insert:
+        {
+            int val=c->t1[i];
+            // re-insert into newc
+            int curr=val, pos;
+            for (int kick=0;kick<newcap*2;kick++){
+                pos = h1(curr,newcap);
+                if (newc->t1[pos]==INT_MIN){ newc->t1[pos]=curr; newc->size++; break; }
+                int tmp=newc->t1[pos]; newc->t1[pos]=curr; curr=tmp;
+                pos = h2(curr,newcap);
+                if (newc->t2[pos]==INT_MIN){ newc->t2[pos]=curr; newc->size++; break; }
+                tmp=newc->t2[pos]; newc->t2[pos]=curr; curr=tmp;
+            }
+        }
+        if (c->t2[i]!=INT_MIN) {
+            int val=c->t2[i];
+            int curr=val, pos;
+            for (int kick=0;kick<newcap*2;kick++){
+                pos = h1(curr,newcap);
+                if (newc->t1[pos]==INT_MIN){ newc->t1[pos]=curr; newc->size++; break; }
+                int tmp=newc->t1[pos]; newc->t1[pos]=curr; curr=tmp;
+                pos = h2(curr,newcap);
+                if (newc->t2[pos]==INT_MIN){ newc->t2[pos]=curr; newc->size++; break; }
+                tmp=newc->t2[pos]; newc->t2[pos]=curr; curr=tmp;
+            }
+        }
+    }
+    free_cuckoo(c);
+    return newc;
+}
+
+bool insert(Cuckoo *c, int key) {
+    if (search(c,key)) return true;
+    int cap = c->cap;
+    int MAX_KICKS = cap*2;
+    int curr = key;
+    int table = 1;
+    for (int kick=0;kick<MAX_KICKS;kick++) {
+        if (table==1) {
+            int pos=h1(curr,cap);
+            if (c->t1[pos]==INT_MIN){ c->t1[pos]=curr; c->size++; return true; }
+            int tmp=c->t1[pos]; c->t1[pos]=curr; curr=tmp; table=2;
+        } else {
+            int pos=h2(curr,cap);
+            if (c->t2[pos]==INT_MIN){ c->t2[pos]=curr; c->size++; return true; }
+            int tmp=c->t2[pos]; c->t2[pos]=curr; curr=tmp; table=1;
+        }
+    }
+    // rehash/grow and try again
+    Cuckoo *newc = rehash_and_grow(c);
+    // attempt insert into new table (recursively)
+    bool ok = insert(newc, key);
+    // replace pointer contents
+    *c = *newc;
+    free(newc); // note: pointers moved into c, so only free container
+    return ok;
+}
+
+bool remove_key(Cuckoo *c, int key) {
+    int p1=h1(key,c->cap);
+    if (c->t1[p1]==key){ c->t1[p1]=INT_MIN; c->size--; return true; }
+    int p2=h2(key,c->cap);
+    if (c->t2[p2]==key){ c->t2[p2]=INT_MIN; c->size--; return true; }
+    return false;
+}
+
+int main(){
+    Cuckoo *c = create_cuckoo(7);
+    int vals[] = {10, 20, 5, 15, 7, 3, 17, 27};
+    for (int i=0;i<8;i++) insert(c, vals[i]);
+    printf("Search 15: %s\n", search(c,15)?"found":"not found");
+    remove_key(c,15);
+    printf("Search 15 after remove: %s\n", search(c,15)?"found":"not found");
+    free_cuckoo(c);
+    return 0;
+}
