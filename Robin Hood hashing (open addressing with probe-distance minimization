@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct {
+    int *table;      // key values, INT_MIN = empty
+    int *dist;       // probe distance (0 for empty)
+    int cap;
+} RH;
+
+int mod(int x, int m){ return (x % m + m) % m; }
+
+RH* create_rh(int cap) {
+    RH *r = malloc(sizeof(RH));
+    r->cap = cap;
+    r->table = malloc(sizeof(int)*cap);
+    r->dist = malloc(sizeof(int)*cap);
+    for (int i=0;i<cap;i++){ r->table[i]=INT_MIN; r->dist[i]=0; }
+    return r;
+}
+
+bool search(RH *r, int key) {
+    int h = mod(key, r->cap);
+    int i = h, d = 0;
+    while (r->table[i] != INT_MIN && r->dist[i] >= d) {
+        if (r->table[i] == key) return true;
+        d++; i = (i+1) % r->cap;
+    }
+    return false;
+}
+
+bool insert(RH *r, int key) {
+    int pos = mod(key, r->cap);
+    int curKey = key;
+    int curDist = 0;
+    for (int probe=0; probe < r->cap; probe++) {
+        if (r->table[pos] == INT_MIN) {
+            r->table[pos] = curKey;
+            r->dist[pos] = curDist;
+            return true;
+        }
+        if (r->table[pos] == curKey) return true;
+        if (r->dist[pos] < curDist) {
+            // swap: current steals position
+            int tmpKey = r->table[pos];
+            int tmpDist = r->dist[pos];
+            r->table[pos] = curKey;
+            r->dist[pos] = curDist;
+            curKey = tmpKey;
+            curDist = tmpDist;
+        }
+        curDist++;
+        pos = (pos + 1) % r->cap;
+    }
+    return false; // table full (in practice rehash needed)
+}
+
+void print_table(RH *r) {
+    for (int i=0;i<r->cap;i++){
+        if (r->table[i]==INT_MIN) printf("[%d]: EMPTY\n",i);
+        else printf("[%d]: %d (d=%d)\n", i, r->table[i], r->dist[i]);
+    }
+}
+
+int main(){
+    RH *r = create_rh(11);
+    int vals[] = {10,21,32,43,54,65,76,87};
+    for (int i=0;i<8;i++) insert(r, vals[i]);
+    print_table(r);
+    printf("Search 32: %s\n", search(r,32)?"found":"not found");
+    return 0;
+}
