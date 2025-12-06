@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+int main() {
+    int n, q;
+    scanf("%d %d", &n, &q);
+
+    int arr[n + 1];        // 1-based indexing (optional)
+    long long prefix[n + 1];
+
+    // Read array (1-based)
+    for (int i = 1; i <= n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    // Build prefix sum: prefix[i] = sum of arr[1..i]
+    prefix[0] = 0;
+    for (int i = 1; i <= n; i++) {
+        prefix[i] = prefix[i - 1] + arr[i];
+    }
+
+    while (q--) {
+        int L, R;
+        scanf("%d %d", &L, &R);
+
+        long long ans = prefix[R] - prefix[L - 1];
+        printf("%lld\n", ans);
+    }
+
+    return 0;
+}
