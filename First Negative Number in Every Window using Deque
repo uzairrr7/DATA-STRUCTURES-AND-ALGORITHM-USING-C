@@ -1,0 +1,76 @@
+#include <stdio.h>
+
+#define MAX 100000
+
+typedef struct {
+    int arr[MAX];
+    int front;
+    int rear;
+} DequeIdx;
+
+void initDQ2(DequeIdx *dq) {
+    dq->front = 0;
+    dq->rear = -1;
+}
+
+int isEmptyDQ2(DequeIdx *dq) {
+    return dq->front > dq->rear;
+}
+
+void pushBack2(DequeIdx *dq, int x) {
+    dq->rear++;
+    dq->arr[dq->rear] = x;
+}
+
+void popFront2(DequeIdx *dq) {
+    if (!isEmptyDQ2(dq)) dq->front++;
+}
+
+int front2(DequeIdx *dq) {
+    return dq->arr[dq->front];
+}
+
+void printFirstNegativeInWindow(int arr[], int n, int k) {
+    DequeIdx dq;
+    initDQ2(&dq);
+
+    // First window
+    for (int i = 0; i < k; i++) {
+        if (arr[i] < 0) {
+            pushBack2(&dq, i);
+        }
+    }
+
+    // Rest windows
+    for (int i = k; i < n; i++) {
+        if (!isEmptyDQ2(&dq))
+            printf("%d ", arr[front2(&dq)]);
+        else
+            printf("0 ");
+
+        // Remove elements out of window
+        while (!isEmptyDQ2(&dq) && front2(&dq) <= i - k) {
+            popFront2(&dq);
+        }
+
+        // Add current element if negative
+        if (arr[i] < 0) {
+            pushBack2(&dq, i);
+        }
+    }
+
+    // Last window
+    if (!isEmptyDQ2(&dq))
+        printf("%d\n", arr[front2(&dq)]);
+    else
+        printf("0\n");
+}
+
+int main() {
+    int arr[] = {12, -1, -7, 8, -15, 30, 16, 28};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int k = 3;
+    printFirstNegativeInWindow(arr, n, k);
+    // Output: -1 -1 -7 -15 -15 0
+    return 0;
+}
