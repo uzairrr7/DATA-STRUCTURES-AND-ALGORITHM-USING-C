@@ -1,0 +1,81 @@
+#include <stdio.h>
+
+#define MAX 100000
+
+typedef struct {
+    int arr[MAX];
+    int front;
+    int rear;
+} DequeIdx;
+
+void initDQ(DequeIdx *dq) {
+    dq->front = 0;
+    dq->rear = -1;
+}
+
+int isEmptyDQ(DequeIdx *dq) {
+    return dq->front > dq->rear;
+}
+
+void pushBack(DequeIdx *dq, int x) {
+    dq->rear++;
+    dq->arr[dq->rear] = x;
+}
+
+void popBack(DequeIdx *dq) {
+    if (!isEmptyDQ(dq)) dq->rear--;
+}
+
+void popFront(DequeIdx *dq) {
+    if (!isEmptyDQ(dq)) dq->front++;
+}
+
+int front(DequeIdx *dq) {
+    return dq->arr[dq->front];
+}
+
+int back(DequeIdx *dq) {
+    return dq->arr[dq->rear];
+}
+
+void slidingWindowMax(int arr[], int n, int k) {
+    DequeIdx dq;
+    initDQ(&dq);
+
+    // Process first k elements
+    for (int i = 0; i < k; i++) {
+        while (!isEmptyDQ(&dq) && arr[i] >= arr[back(&dq)]) {
+            popBack(&dq);
+        }
+        pushBack(&dq, i);
+    }
+
+    // Process rest
+    for (int i = k; i < n; i++) {
+        printf("%d ", arr[front(&dq)]); // max of previous window
+
+        // Remove elements out of this window
+        while (!isEmptyDQ(&dq) && front(&dq) <= i - k) {
+            popFront(&dq);
+        }
+
+        // Remove smaller elements
+        while (!isEmptyDQ(&dq) && arr[i] >= arr[back(&dq)]) {
+            popBack(&dq);
+        }
+
+        pushBack(&dq, i);
+    }
+
+    // Print max of last window
+    printf("%d\n", arr[front(&dq)]);
+}
+
+int main() {
+    int arr[] = {1, 3, -1, -3, 5, 3, 6, 7};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int k = 3;
+    slidingWindowMax(arr, n, k);
+    // Output: 3 3 5 5 6 7
+    return 0;
+}
