@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct Node {
+    int data;
+    struct Node *prev;
+    struct Node *next;
+} Node;
+
+typedef struct {
+    Node *front;
+    Node *rear;
+} DequeLL;
+
+void initDequeLL(DequeLL *dq) {
+    dq->front = dq->rear = NULL;
+}
+
+int isEmptyLL(DequeLL *dq) {
+    return dq->front == NULL;
+}
+
+void insertFrontLL(DequeLL *dq, int x) {
+    Node *temp = (Node *)malloc(sizeof(Node));
+    temp->data = x;
+    temp->prev = NULL;
+    temp->next = dq->front;
+
+    if (isEmptyLL(dq)) {
+        dq->rear = temp;
+    } else {
+        dq->front->prev = temp;
+    }
+    dq->front = temp;
+}
+
+void insertRearLL(DequeLL *dq, int x) {
+    Node *temp = (Node *)malloc(sizeof(Node));
+    temp->data = x;
+    temp->next = NULL;
+    temp->prev = dq->rear;
+
+    if (isEmptyLL(dq)) {
+        dq->front = temp;
+    } else {
+        dq->rear->next = temp;
+    }
+    dq->rear = temp;
+}
+
+void deleteFrontLL(DequeLL *dq) {
+    if (isEmptyLL(dq)) {
+        printf("Deque is empty\n");
+        return;
+    }
+    Node *temp = dq->front;
+    dq->front = dq->front->next;
+    if (dq->front == NULL) {
+        dq->rear = NULL;
+    } else {
+        dq->front->prev = NULL;
+    }
+    free(temp);
+}
+
+void deleteRearLL(DequeLL *dq) {
+    if (isEmptyLL(dq)) {
+        printf("Deque is empty\n");
+        return;
+    }
+    Node *temp = dq->rear;
+    dq->rear = dq->rear->prev;
+    if (dq->rear == NULL) {
+        dq->front = NULL;
+    } else {
+        dq->rear->next = NULL;
+    }
+    free(temp);
+}
+
+int getFrontLL(DequeLL *dq) {
+    if (isEmptyLL(dq)) {
+        printf("Deque is empty\n");
+        return INT_MIN;
+    }
+    return dq->front->data;
+}
+
+int getRearLL(DequeLL *dq) {
+    if (isEmptyLL(dq)) {
+        printf("Deque is empty\n");
+        return INT_MIN;
+    }
+    return dq->rear->data;
+}
+
+int main() {
+    DequeLL dq;
+    initDequeLL(&dq);
+
+    insertFrontLL(&dq, 10);
+    insertRearLL(&dq, 20);
+    insertFrontLL(&dq, 5);
+
+    printf("Front = %d\n", getFrontLL(&dq)); // 5
+    printf("Rear = %d\n", getRearLL(&dq));   // 20
+
+    deleteFrontLL(&dq);
+    printf("Front after deleteFront = %d\n", getFrontLL(&dq)); // 10
+
+    deleteRearLL(&dq);
+    printf("Rear after deleteRear = %d\n", getRearLL(&dq)); // 10
+
+    return 0;
+}
