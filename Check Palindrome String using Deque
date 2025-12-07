@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+#define MAX 1000
+
+typedef struct {
+    char arr[MAX];
+    int front;
+    int rear;
+    int size;
+} DequeChar;
+
+void initDequeChar(DequeChar *dq) {
+    dq->front = -1;
+    dq->rear = -1;
+    dq->size = MAX;
+}
+
+int isEmptyChar(DequeChar *dq) {
+    return dq->front == -1;
+}
+
+int isFullChar(DequeChar *dq) {
+    return ((dq->front == 0 && dq->rear == dq->size - 1) ||
+            (dq->front == dq->rear + 1));
+}
+
+void insertRearChar(DequeChar *dq, char c) {
+    if (isFullChar(dq)) return;
+    if (dq->front == -1) {
+        dq->front = dq->rear = 0;
+    } else if (dq->rear == dq->size - 1) {
+        dq->rear = 0;
+    } else {
+        dq->rear++;
+    }
+    dq->arr[dq->rear] = c;
+}
+
+char deleteFrontChar(DequeChar *dq) {
+    if (isEmptyChar(dq)) return '\0';
+    char c = dq->arr[dq->front];
+    if (dq->front == dq->rear) {
+        dq->front = dq->rear = -1;
+    } else if (dq->front == dq->size - 1) {
+        dq->front = 0;
+    } else {
+        dq->front++;
+    }
+    return c;
+}
+
+char deleteRearChar(DequeChar *dq) {
+    if (isEmptyChar(dq)) return '\0';
+    char c = dq->arr[dq->rear];
+    if (dq->front == dq->rear) {
+        dq->front = dq->rear = -1;
+    } else if (dq->rear == 0) {
+        dq->rear = dq->size - 1;
+    } else {
+        dq->rear--;
+    }
+    return c;
+}
+
+int isPalindrome(char *s) {
+    DequeChar dq;
+    initDequeChar(&dq);
+
+    // Insert only alphanumeric char in lowercase into deque
+    for (int i = 0; s[i]; i++) {
+        if (isalnum((unsigned char)s[i])) {
+            insertRearChar(&dq, tolower((unsigned char)s[i]));
+        }
+    }
+
+    while (!isEmptyChar(&dq)) {
+        if (dq.front == dq.rear) break; // single char left
+        char frontChar = deleteFrontChar(&dq);
+        char rearChar = deleteRearChar(&dq);
+        if (frontChar != rearChar) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int main() {
+    char str[1000];
+    printf("Enter a string: ");
+    fgets(str, sizeof(str), stdin);
+
+    if (isPalindrome(str))
+        printf("Palindrome\n");
+    else
+        printf("Not Palindrome\n");
+    return 0;
+}
