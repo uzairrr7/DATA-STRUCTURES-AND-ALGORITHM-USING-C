@@ -1,0 +1,19 @@
+long maxProductSubarray(int arr[], int n) {
+    long max_ending_here = arr[0];
+    long min_ending_here = arr[0];
+    long max_so_far = arr[0];
+
+    for (int i = 1; i < n; i++) {
+        if (arr[i] < 0) {
+            // swap
+            long temp = max_ending_here;
+            max_ending_here = min_ending_here;
+            min_ending_here = temp;
+        }
+        max_ending_here = max((long)arr[i], max_ending_here * arr[i]);
+        min_ending_here = min((long)arr[i], min_ending_here * arr[i]);
+        if (max_ending_here > max_so_far)
+            max_so_far = max_ending_here;
+    }
+    return max_so_far;
+}
