@@ -1,0 +1,13 @@
+int maxSubarraySum(int arr[], int n) {
+    int max_here = arr[0];
+    int max_so_far = arr[0];
+    for (int i = 1; i < n; i++) {
+        if (max_here + arr[i] > arr[i])
+            max_here = max_here + arr[i];
+        else
+            max_here = arr[i];
+        if (max_here > max_so_far)
+            max_so_far = max_here;
+    }
+    return max_so_far;
+}
