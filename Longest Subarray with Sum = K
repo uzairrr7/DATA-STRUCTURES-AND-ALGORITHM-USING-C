@@ -1,0 +1,2 @@
+// Maintain map: prefix_sum -> first index seen
+// Iterate, update prefix sum; if (prefix - K) seen before, update max_len.
