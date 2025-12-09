@@ -1,0 +1,25 @@
+#include <stdio.h>
+
+int maxProduct(int arr[], int n) {
+    int maxProd = arr[0], minProd = arr[0], result = arr[0];
+
+    for (int i = 1; i < n; i++) {
+        int temp = maxProd;
+
+        maxProd = (arr[i] > maxProd * arr[i]) ? arr[i] : maxProd * arr[i];
+        maxProd = (maxProd > minProd * arr[i]) ? maxProd : minProd * arr[i];
+
+        minProd = (arr[i] < temp * arr[i]) ? arr[i] : temp * arr[i];
+        minProd = (minProd < minProd * arr[i]) ? minProd : minProd * arr[i];
+
+        result = (result > maxProd) ? result : maxProd;
+    }
+    return result;
+}
+
+int main() {
+    int arr[] = {2, 3, -2, 4};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    printf("Max Product Subarray = %d", maxProduct(arr, n));
+    return 0;
+}
